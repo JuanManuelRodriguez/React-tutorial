@@ -42,10 +42,13 @@ class Game extends React.Component {
         super();
         this.state={
             history:[{
-                squares: Array(9).fill(null)
+                squares: Array(9).fill(null),
+                positionClicked:0,
+                posX:0,
+                posY:0
             }],
             xIsNext:true,
-            stepNumber:0
+            stepNumber:0,
         };
     }
     handleClick(i) {
@@ -58,11 +61,21 @@ class Game extends React.Component {
         squares[i] = this.state.xIsNext ? 'X' : 'O';
         this.setState({
             history: history.concat([{
-                squares: squares
+                squares: squares,
+                positionClicked:i,
+                posX:Math.floor(i % 3 + 1),
+                posY:Math.floor(i / 3 + 1)
             }]),
             xIsNext: !this.state.xIsNext,
             stepNumber:history.length,
         });
+    }
+    position(){
+        this.setState({
+            posX:this.state.history.positionClicked ,
+            posY:this.state.history.positionClicked 
+        });
+
     }
     jumpTo(step)
     {
@@ -76,8 +89,8 @@ class Game extends React.Component {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
-        const moves=history.map((step,move)=>{
-            const desc=move?'Move #'+move : 'Game start';
+        const moves=history.map((step,move)=>{          // https://www.w3schools.com/jsref/jsref_map.asp -- map(currentValue,index)
+            const desc=move?'Move #'+move+' posX:'+step.posX+' posY:'+step.posY : 'Game start';
         return(
             <li key={move}>
                 <a  href="#" onClick={()=>this.jumpTo(move)}>{desc}</a>
