@@ -1,25 +1,6 @@
 import React from 'react';
-//import logo from './logo.svg';
 import './App.css';
 import calculateWinner from './index.js'
-
-/*class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h2>Welcome to React</h2>
-        </div>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
-}
-
-export default App;*/
 
 function Square(props) {
     return (
@@ -27,45 +8,15 @@ function Square(props) {
             {props.value}
         </button>
     );
-
-
 }
 
 class Board extends React.Component {
-    constructor(){
-        super();
-        this.state={
-            squares: Array(9).fill(null),
-            xIsNext: true,
-        };
-    }
-    handleClick(i){
-        const squares = this.state.squares.slice();
-        if (calculateWinner(squares)||squares[i]){
-            return;
-        }
-        squares[i]=this.state.xIsNext? 'X' : 'O';
-        this.setState({
-            squares:squares,
-            xIsNext:!this.state.xIsNext,
-        });
-
-    }
     renderSquare(i) {
-        return <Square value={this.state.squares[i]} onClick={() => this.handleClick(i)}/>;
+        return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)}/>;
     }
     render() {
-        const winner= calculateWinner(this.state.squares);
-        let status;
-        if (winner){
-            status='Winner: '+winner;
-        }
-        else{
-            status= 'Next player: '+ (this.state.xIsNext? 'X': 'O');
-        }
         return (
             <div>
-                <div className="status">{status}</div>
                 <div className="board-row">
                     {this.renderSquare(0)}
                     {this.renderSquare(1)}
@@ -87,15 +38,70 @@ class Board extends React.Component {
 }
 
 class Game extends React.Component {
+    constructor(){
+        super();
+        this.state={
+            history:[{
+                squares: Array(9).fill(null)
+            }],
+            xIsNext:true,
+            stepNumber:0
+        };
+    }
+    handleClick(i) {
+        const history = this.state.history;
+        const current = history[history.length - 1];
+        const squares = current.squares.slice();
+        if (calculateWinner(squares) || squares[i]) {
+            return;
+        }
+        squares[i] = this.state.xIsNext ? 'X' : 'O';
+        this.setState({
+            history: history.concat([{
+                squares: squares
+            }]),
+            xIsNext: !this.state.xIsNext,
+            stepNumber:history.length,
+        });
+    }
+    jumpTo(step)
+    {
+        this.setState({
+           stepNumber:step,
+           xIsNext:(step % 2)? false : true //We set xIsNext to true if the index of the move number is an even number.
+            //JS 1==true and 0==false
+        });
+    }
     render() {
+        const history = this.state.history;
+        const current = history[this.state.stepNumber];
+        const winner = calculateWinner(current.squares);
+        const moves=history.map((step,move)=>{
+            const desc=move?'Move #'+move : 'Game start';
+        return(
+            <li key={move}>
+                <a  href="#" onClick={()=>this.jumpTo(move)}>{desc}</a>
+            </li>
+        )
+        });
+
+        let status;
+        if (winner) {
+            status = 'Winner: ' + winner;
+        } else {
+            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
         return (
             <div className="game">
                 <div className="game-board">
-                    <Board />
+                    <Board
+                        squares={current.squares}
+                        onClick={(i) => this.handleClick(i)}
+                    />
                 </div>
                 <div className="game-info">
-                    <div>{/* status */}</div>
-                    <ol>{/* TODO */}</ol>
+                    <div>{status}</div>
+                    <ol>{moves}</ol>
                 </div>
             </div>
         );
