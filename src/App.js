@@ -49,6 +49,8 @@ class Game extends React.Component {
             }],
             xIsNext:true,
             stepNumber:0,
+            orderAsc:true,
+            orderText:"Ascendant"
         };
     }
     handleClick(i) {
@@ -70,33 +72,52 @@ class Game extends React.Component {
             stepNumber:history.length,
         });
     }
-    position(){
-        this.setState({
-            posX:this.state.history.positionClicked ,
-            posY:this.state.history.positionClicked 
-        });
-
-    }
     jumpTo(step)
     {
         this.setState({
            stepNumber:step,
-           xIsNext:(step % 2)? false : true //We set xIsNext to true if the index of the move number is an even number.
-            //JS 1==true and 0==false
+           xIsNext:(step % 2)? false : true, //We set xIsNext to true if the index of the move number is an even number.
+           // JS 1==true and 0==false
+        });
+
+    }
+    renderButtonOrder(moves) {
+        return <button onClick={()=>this.sort()}>{this.state.orderText}</button>;
+    }
+    sort(){
+        const text = (this.state.orderAsc)? 'Ascendant' : 'Descendant';
+        this.setState({
+            orderAsc: !this.state.orderAsc,
+            orderText:text,
         });
     }
     render() {
         const history = this.state.history;
         const current = history[this.state.stepNumber];
         const winner = calculateWinner(current.squares);
-        const moves=history.map((step,move)=>{          // https://www.w3schools.com/jsref/jsref_map.asp -- map(currentValue,index)
+        let moves=history.map((step,move)=>{          // https://www.w3schools.com/jsref/jsref_map.asp -- map(currentValue,index)
             const desc=move?'Move #'+move+' posX:'+step.posX+' posY:'+step.posY : 'Game start';
-        return(
-            <li key={move}>
-                <a  href="#" onClick={()=>this.jumpTo(move)}>{desc}</a>
-            </li>
-        )
+            let negrita;
+            
+            if(current.posX===step.posX && current.posY===step.posY){
+                negrita={
+                    fontWeight: 'bold'
+                };
+            }
+            else{
+                negrita={}
+            }
+            return(
+                <li key={move}>
+                    <span style={negrita}><a  href="#" onClick={()=>this.jumpTo(move)}>{desc}</a></span>
+                </li>
+            )
+
         });
+        //invierte el orden de la lista de movimientos cuando se hace click sobre el boton correspondiente
+        if(!this.state.orderAsc){
+            moves=moves.reverse();
+        }
 
         let status;
         if (winner) {
@@ -114,6 +135,7 @@ class Game extends React.Component {
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
+                    {this.renderButtonOrder(moves)}
                     <ol>{moves}</ol>
                 </div>
             </div>
