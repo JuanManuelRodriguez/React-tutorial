@@ -14,24 +14,35 @@ class Board extends React.Component {
     renderSquare(i) {
         return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)}/>;
     }
+    renderRows(){
+        let rows=[];
+        const colRows=3;
+        let aux=0;
+        for(let i=0;i<colRows;i++){
+            rows.push(
+                <div className="board-row">
+                    {this.renderCols(aux)}
+                </div>
+            
+            );
+            aux+=colRows;
+        }
+        return rows;
+    }
+    renderCols(i){
+        let cols=[];
+        const colRows=3;
+        for(let j=i;j<colRows+i;j++){
+            cols.push(
+                this.renderSquare(j)
+            );
+        }
+        return cols;
+    }
     render() {
         return (
             <div>
-                <div className="board-row">
-                    {this.renderSquare(0)}
-                    {this.renderSquare(1)}
-                    {this.renderSquare(2)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(3)}
-                    {this.renderSquare(4)}
-                    {this.renderSquare(5)}
-                </div>
-                <div className="board-row">
-                    {this.renderSquare(6)}
-                    {this.renderSquare(7)}
-                    {this.renderSquare(8)}
-                </div>
+                {this.renderRows()}
             </div>
         );
     }
