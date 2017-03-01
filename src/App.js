@@ -4,7 +4,7 @@ import calculateWinner from './index.js'
 
 function Square(props) {
     return (
-        <button className="square" onClick={() => props.onClick()}>
+        <button className="square" style={props.sqrWin} onClick={() => props.onClick()}>
             {props.value}
         </button>
     );
@@ -12,7 +12,13 @@ function Square(props) {
 
 class Board extends React.Component {
     renderSquare(i) {
-        return <Square value={this.props.squares[i]} onClick={() => this.props.onClick(i)}/>;
+        let red={backgroud:'black'};
+        for(let j=0;j< this.props.winnerSquares.length;j++){
+            if(i===this.props.winnerSquares[j]){
+                red={background:'red'};
+            }
+        }
+        return <Square value={this.props.squares[i]} sqrWin={red} onClick={() => this.props.onClick(i)}/>;
     }
     renderRows(){
         let rows=[];
@@ -92,7 +98,7 @@ class Game extends React.Component {
         });
 
     }
-    renderButtonOrder(moves) {
+    renderButtonOrder() {
         return <button onClick={()=>this.sort()}>{this.state.orderText}</button>;
     }
     sort(){
@@ -131,8 +137,10 @@ class Game extends React.Component {
         }
 
         let status;
-        if (winner) {
-            status = 'Winner: ' + winner;
+        let winnerStyle=[];
+        if (winner) {  //TODO: pintar los cuadrados ganadores
+            status = 'Winner: ' + winner[winner.length-1]+' sarasa:'+current.squares[winner[0]];
+            winnerStyle.push(winner[0], winner[1], winner[2]);
         } else {
             status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
         }
@@ -140,13 +148,15 @@ class Game extends React.Component {
             <div className="game">
                 <div className="game-board">
                     <Board
-                        squares={current.squares}
+                        squares={current.squares} 
+                        ave="lala"
+                        winnerSquares={winnerStyle}
                         onClick={(i) => this.handleClick(i)}
                     />
                 </div>
                 <div className="game-info">
                     <div>{status}</div>
-                    {this.renderButtonOrder(moves)}
+                    {this.renderButtonOrder()}
                     <ol>{moves}</ol>
                 </div>
             </div>
